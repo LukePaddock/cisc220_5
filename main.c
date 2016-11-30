@@ -5,8 +5,21 @@
 #include<stdio.h>
 #include"udll.h"
 int main(void) {
-	union Data d;
-	d.a = 3;
-	insert(3, d);
-	insert(-1, d);
+	for (int x = 0; x < 5; x++) {
+		union Data i;
+		i.a = x;
+		insert(-1, i);
+
+
+	}
+	
+
+	printf(" \nSize: %d\nCrnt: %d\n", debug_size(), debug_crnt());
+	union Data number = get(2);
+	printf("%d\n", number.a);
+	number = get(4);
+	printf("%d\n", number.a);
+	
+	printf(" \nSize: %d\nCrnt: %d\n", debug_size(), debug_crnt());
 }
+

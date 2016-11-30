@@ -25,5 +25,7 @@ void insert(int index, union Data data);
 void lremove(int index);
 union Data get(int index);
 int length();
+int debug_size();
+int debug_crnt();
 
 #endif	
