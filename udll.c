@@ -6,49 +6,137 @@
 #include<stdio.h>
 #include"udll.h"
 
-/* (from udll.h)
 
-typedef struct { int *prev; int *next; union Data value; } Node;
 
-*/
-
-Node *cn; /* First Node */
-int size;
+Node *cn; /* Current Node */
+int size; /* Current Size */
 int crnt; /* current position (index of cn) */
 
+/* Create and insert a node with Data data at index index  */
 void insert(int index, union Data data)
 {
-	if (size == 0) {
+	if (size == 0) { /* No nodes */
 		/* We need to create the first node! */
 		cn = malloc(sizeof(struct Node));
 		cn->prev = NULL;
 		cn->next = NULL;
 		cn->value = data;
-		size = 1;
-		crnt = 0;
+		size = 1; /* size is exactly equal to 1 because first ndoe */
+		crnt = 0; /* current index is exactly equal to 0 because there is only one node */
 	}
-	else if (index < 0 || index >= size) { /* just add the node to the end */
-		while (cn->next != NULL) { 
+	else if (index < 0 || index >= (size-1)) { /* Index is negative or greater than last index */
+		/* Just add the new node to the end */
+		while (cn->next != NULL) { /* set cn to the last node */
 			cn = cn->next;
-			crnt++;
+			crnt++; /* current index counter keeps up with moving through the array */
 		}
+		/* Create new node */
 		Node *x = malloc(sizeof(struct Node));
 		x->prev = cn;
-		x->next = NULL;
+		x->next = NULL; /* (because this is the last node) */
 		x->value = data;
 		cn->next =  x;
 		size++;
 	}
+	else if ( index == 0 ) { 
+		/* Put node at the beginning of the list */
+		while ( cn->prev != NULL ) { /* move to first node */
+			cn = cn->prev;
+			crnt--; /* current index counter keeps up with moving through array */
+		}
+
+		/* create new node */
+		Node *x = malloc(sizeof(struct Node));
+		x->prev = NULL;
+		x->next = cn;
+		x->value = data;
+		cn->prev = x;
+		size++; /* because the array is bigger now */
+		crnt++; /* we added element before cn so we update index counter */
+	}
+	else { /* Put the node in the middle somewhere (at index) */
+		if ( crnt > index ) { /* if cn is currently past the desired index */
+			while ( crnt > index ) {
+				cn = cn->prev;
+				crnt--;
+			}
+		}
+		else if ( crnt < index ) { /* if cn is currently before the desired index */
+			while ( crnt < index ) { 
+				cn = cn->next;
+				crnt++;
+			}
+		}
+		
+		/* create new node directly before cn */
+		Node *x = malloc(sizeof(struct Node));
+		x->next = cn;
+		x->prev = cn->prev;
+		x->value = data;
+		cn->prev->next = x;
+		cn->prev = x;
+		crnt++; /* we added element before cn so we update index counter */
+		size++; /* array is exactly 1 element larger now */
+	}
+		
 }
 
+/* Remove element at index index */
 void lremove(int index) 
 {
-	/* Implement remove function */
+	if ( index == 0 ) { /* first node */
+		while ( cn->prev != NULL ) { /* move to node 0 */
+			cn = cn->prev;
+			crnt--;
+		}
+		cn->next->prev = NULL;
+		Node *x = cn;
+		cn = cn->next;
+		free(x); /* free space in memory */
+		size--; /* list is one elemnt smaller now */
+		/* crnt just stays at 0 */
+	}
+	else if ( index == (size-1) ) { /* last node */
+		while ( cn->next != NULL ) { /* move to last node */
+			cn = cn->next;
+			crnt++;	
+		}
+		cn->prev->next = NULL;
+		Node *x = cn; /* assign node to be removed to temp var so we can free(x) */
+		cn = cn->prev;
+		free(x); /* free deleted node from memory */
+		size--; /* list is smaller by 1 */
+		crnt--; /* (because we are deleting the last node) */ 
+	}
+	else { /* some node in between 0 and last */
+		/* move cn to desired index */
+		if ( crnt > index ) {
+			while ( crnt > index ) {
+				cn = cn->prev;
+				crnt--;
+			}
+		}
+		else if ( crnt < index ) {
+			while ( crnt < index ) {
+				cn = cn->next;
+				crnt++;
+			}
+		}
+	
+		cn->prev->next = cn->next;
+		cn->next->prev = cn->prev;
+	
+		Node *x = cn; /* assign cn to temp var to free(x) later */
+		cn = cn->next; /* cn is now the node after deleted node */
+		free(x);
+		size--;
+		/* crnt = crnt ( crnt doesn't have to change ) */
+	}
 }
 
 union Data get(int index)
 {
-	if (index >= size) { /* use the last node  */
+	if (index >= (size - 1)) { /* use the last node  */
 		index = ( size - 1 );
 	}
 	if (crnt > index) { 
@@ -66,6 +154,5 @@ union Data get(int index)
 	}
 	return cn->value; /* put this in to stop gcc warning */
 }
-
-int debug_size() { return size; }
-int debug_crnt() { return crnt; }
+int length() { return size; }
+int currentIndex() { return crnt; }
