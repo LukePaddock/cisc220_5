@@ -21,10 +21,10 @@ typedef struct Node {
 
 } Node;
 
-void insert(int index, union Data data);
-void lremove(int index);
-union Data get(int index);
-int length();
-int currentIndex();
+void list_insert(int index, union Data data);
+void list_remove(int index);
+union Data list_get(int index);
+int list_length();
+int list_currentIndex();
 
 #endif	

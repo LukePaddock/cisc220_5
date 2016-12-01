@@ -6,14 +6,19 @@
 #include<stdio.h>
 #include"udll.h"
 
-
+/* This program contains functions for controlling one linked list.
+   A linked list contains of multiple Nodes ( struct Node defined in udll.h )
+   Each Node contains a pointer to the previous node, a pointer to the next node,
+   and a value ( union Data defined in udll.h )
+*/
 
 Node *cn; /* Current Node */
 int size; /* Current Size */
 int crnt; /* current position (index of cn) */
 
-/* Create and insert a node with Data data at index index  */
-void insert(int index, union Data data)
+/* Create and insert a node with Data data at index index  
+   use negative index to put node at the end of the list */
+void list_insert(int index, union Data data)
 {
 	if (size == 0) { /* No nodes */
 		/* We need to create the first node! */
@@ -82,9 +87,15 @@ void insert(int index, union Data data)
 }
 
 /* Remove element at index index */
-void lremove(int index) 
+void list_remove(int index) 
 {
-	if ( index == 0 ) { /* first node */
+	if ( size == 1 ) { /* deleting the only node */
+		free(cn);
+		cn = NULL;
+		size = 0;
+		crnt = 0;
+	}
+	else if ( index == 0 ) { /* first node */
 		while ( cn->prev != NULL ) { /* move to node 0 */
 			cn = cn->prev;
 			crnt--;
@@ -134,7 +145,7 @@ void lremove(int index)
 	}
 }
 
-union Data get(int index)
+union Data list_get(int index)
 {
 	if (index >= (size - 1)) { /* use the last node  */
 		index = ( size - 1 );
@@ -142,17 +153,18 @@ union Data get(int index)
 	if (crnt > index) { 
 		cn = cn->prev;
 		crnt = crnt - 1;
-		return get(index); 
+		return list_get(index); 
 	}
 	else if (crnt < index) { 
 		cn = cn->next;
 		crnt = crnt + 1;
-		return get(index);
+		return list_get(index);
 	}
 	else { /* crnt == index */ 
 		return cn->value;
 	}
 	return cn->value; /* put this in to stop gcc warning */
 }
-int length() { return size; }
-int currentIndex() { return crnt; }
+
+int list_length() { return size; } /* return size of the array (how many nodes)  */
+int list_currentIndex() { return crnt; } /* return currentIndex (mostly for debugging) */
